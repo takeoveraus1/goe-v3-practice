@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens for GOE Platform – Version 3 Practice. A single dark theme; every colour is a token so a
+ * light theme or a brand refresh only touches this block.
+ */
+@theme {
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-canvas: #0b0c0e;
+  --color-surface: #141518;
+  --color-surface-2: #1b1d21;
+  --color-surface-3: #24262b;
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-line-strong: rgb(255 255 255 / 0.14);
+
+  --color-ink: #f2f1ee;
+  --color-ink-2: #bdbcb5;
+  --color-ink-3: #8a8983;
+
+  /* Blue: a light tone for text, icons and highlights on the dark ground; a deeper one behind white button text. */
+  --color-accent: #4d94ff;
+  --color-accent-fill: #2563eb;
+  --color-accent-fill-hover: #1d4ed8;
+  --color-accent-soft: rgb(77 148 255 / 0.14);
+  --color-accent-track: #16223a;
+  --color-on-accent: #ffffff;
+
+  /* "Version 3 Practice" marker. */
+  --color-practice: #a78bfa;
+  --color-practice-soft: rgb(167 139 250 / 0.14);
+  --color-practice-line: rgb(167 139 250 / 0.35);
+
+  --color-good: #22b14c;
+  --color-good-soft: rgb(34 177 76 / 0.14);
+  --color-bad: #e66767;
+  --color-bad-soft: rgb(230 103 103 / 0.14);
+  --color-warn: #fab219;
+  --color-warn-soft: rgb(250 178 25 / 0.14);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--color-accent-soft);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+input[type="range"] {
+  accent-color: var(--color-accent);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
