@@ -14,6 +14,15 @@ An athlete logs in and sees, on one page:
 
 Coaches share an invite code. Athletes enter it when they sign up, or later on their plan page. The coach then sees every athlete's block, context and latest trends, the review points coming up, and the check-ins waiting for feedback. Coaches can edit any part of an athlete's plan except the check-ins.
 
+## Keep it private (access code)
+
+The whole app sits behind an **access code**. Anyone who opens the address sees a "Private app" page first and can't reach anything else, not even the login page, without the code. Each browser that enters the right code is remembered for 30 days. The app is also hidden from search engines.
+
+- **On Vercel the app stays locked until you set the code:** open the project → **Settings → Environment Variables**, add `ACCESS_CODE` with the code you want, save, then **Deployments → ⋯ → Redeploy**.
+- **To share it,** send the address and the code to the people you want, such as your boss. They then log in (or use a demo login while demo mode is on).
+- **To lock everyone out again,** change `ACCESS_CODE` and redeploy. Everyone has to enter the new code.
+- **Locally,** the gate is off unless `ACCESS_CODE` is set in `.env`.
+
 ## Try it locally
 
 Requires Node.js 20.9 or later.

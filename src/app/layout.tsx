@@ -10,6 +10,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: { default: APP_FULL_NAME, template: `%s · GOE V3 Practice` },
   description: `${APP_FULL_NAME} – ${APP_TAGLINE}`,
+  // Private app: keep it out of search results.
+  robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = {
