@@ -64,7 +64,16 @@ export interface V3GoalView {
 export interface V3Plan {
   athlete: { id: string; name: string; email: string };
   coach: { id: string; name: string } | null;
-  profile: { primaryArchetype: string | null; secondaryArchetype: string | null; contexts: string[]; contextNote: string | null } | null;
+  profile: {
+    primaryArchetype: string | null;
+    secondaryArchetype: string | null;
+    contexts: string[];
+    contextNote: string | null;
+    /** Player Roadmap: the team and role they're aiming for in ~3 years, and by when. */
+    aimTeam: string | null;
+    aimRole: string | null;
+    aimYear: number | null;
+  } | null;
   /** Oldest first. */
   blocks: V3BlockView[];
   currentBlock: V3BlockView | null;
@@ -152,6 +161,9 @@ export async function getV3Plan(athleteId: string, today: string): Promise<V3Pla
         secondaryArchetype: profile.secondaryArchetype,
         contexts: profile.contexts,
         contextNote: profile.contextNote,
+        aimTeam: profile.aimTeam,
+        aimRole: profile.aimRole,
+        aimYear: profile.aimYear,
       }
     : null;
 

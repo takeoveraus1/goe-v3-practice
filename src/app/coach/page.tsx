@@ -6,7 +6,7 @@ import { Avatar, PageHeader } from "@/components/shell/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { TREND_ICON, TREND_TONE } from "@/components/v3/trend";
+import { TrendMark } from "@/components/v3/trend";
 import { V3_VERSION_LABEL, v3ArchetypeName, v3ContextName, v3TrendName } from "@/config/v3";
 import { requireCoach } from "@/lib/auth/dal";
 import { cn } from "@/lib/cn";
@@ -149,7 +149,9 @@ export default async function V3CoachHome() {
             const primary = v3ArchetypeName(plan.profile?.primaryArchetype);
             const secondary = v3ArchetypeName(plan.profile?.secondaryArchetype);
             const status = checkInLabel(plan, today);
-            const pressing = plan.goals.pressing;
+            const steps = Object.values(plan.goals).flatMap((g) => g?.steps ?? []);
+            const stepsDone = steps.filter((s) => s.doneAt).length;
+            const aim = [plan.profile?.aimRole, plan.profile?.aimTeam].filter(Boolean).join(", ");
             return (
               <li key={plan.athlete.id}>
                 <Link
@@ -163,13 +165,10 @@ export default async function V3CoachHome() {
                       <p className="truncate text-xs text-ink-3">{primary ? `${primary}${secondary ? ` / ${secondary}` : ""}` : "Archetype not set"}</p>
                     </div>
                     {plan.currentBlock ? (
-                      <div className="text-right">
-                        <p className="text-lg font-semibold leading-none tabular">
-                          Wk {plan.currentBlock.progress.currentWeek}
-                          <span className="text-sm font-normal text-ink-3">/{plan.currentBlock.progress.totalWeeks}</span>
-                        </p>
-                        <p className="mt-1 text-[11px] text-ink-3">{plan.currentBlock.progress.daysLeft}d left</p>
-                      </div>
+                      <p className="text-right text-lg font-semibold leading-none tabular">
+                        Wk {plan.currentBlock.progress.currentWeek}
+                        <span className="text-sm font-normal text-ink-3">/{plan.currentBlock.progress.totalWeeks}</span>
+                      </p>
                     ) : null}
                   </div>
 
@@ -193,24 +192,12 @@ export default async function V3CoachHome() {
                         </span>
                       </p>
                       <ul className="mt-2 space-y-1">
-                        {block.categories.map((cat) => {
-                          const Icon = cat.latest ? TREND_ICON[cat.latest] : null;
-                          return (
-                            <li key={cat.id} className="flex items-center gap-2 text-sm">
-                              <span
-                                className={cn(
-                                  "flex size-5 shrink-0 items-center justify-center rounded",
-                                  cat.latest ? TREND_TONE[cat.latest] : "border border-dashed border-line-strong",
-                                )}
-                                title={cat.latest ? v3TrendName(cat.latest) : "No check-in yet"}
-                              >
-                                {Icon ? <Icon className="size-3.5" aria-hidden /> : null}
-                                <span className="sr-only">{cat.latest ? v3TrendName(cat.latest) : "No check-in yet"}</span>
-                              </span>
-                              <span className="truncate text-ink-2">{cat.name}</span>
-                            </li>
-                          );
-                        })}
+                        {block.categories.map((cat) => (
+                          <li key={cat.id} className="flex items-center gap-2 text-sm">
+                            <TrendMark trend={cat.latest} size="sm" label={`${cat.name}, latest week: ${cat.latest ? v3TrendName(cat.latest) : "not rated yet"}`} />
+                            <span className="truncate text-ink-2">{cat.name}</span>
+                          </li>
+                        ))}
                       </ul>
                       {block.nextReview ? (
                         <p className="mt-2 flex items-center gap-1.5 text-xs text-ink-3">
@@ -223,11 +210,18 @@ export default async function V3CoachHome() {
                     <p className="mt-4 rounded-xl border border-dashed border-line-strong p-3 text-sm text-ink-3">No training block set up yet.</p>
                   )}
 
-                  {pressing ? (
-                    <p className="mt-3 line-clamp-2 text-xs text-ink-3">
-                      <span className="font-medium text-accent">Most pressing:</span> {pressing.title}
-                    </p>
-                  ) : null}
+                  <dl className="mt-3 space-y-1 text-xs">
+                    <div className="flex gap-1.5">
+                      <dt className="shrink-0 font-medium text-accent">Roadmap:</dt>
+                      <dd className="line-clamp-2 text-ink-3">
+                        {aim ? `${aim}${plan.profile?.aimYear ? ` (by ${plan.profile.aimYear})` : ""}` : "not set yet"}
+                      </dd>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <dt className="shrink-0 font-medium text-accent">Action steps:</dt>
+                      <dd className="text-ink-3 tabular">{steps.length ? `${stepsDone}/${steps.length} done` : "none yet"}</dd>
+                    </div>
+                  </dl>
                   {status.text ? <p className={cn("mt-auto pt-3 text-xs", status.warn ? "text-warn" : "text-ink-3")}>{status.text}</p> : null}
                 </Link>
               </li>

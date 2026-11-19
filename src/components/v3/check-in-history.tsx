@@ -6,7 +6,7 @@ import { formatDate } from "@/lib/dates";
 import type { V3BlockView } from "@/lib/v3/data";
 import { v3WeekRange } from "@/lib/v3/blocks";
 import { V3FeedbackForm } from "./feedback-form";
-import { TrendBadge } from "./trend";
+import { TrendWithLabel } from "./trend";
 
 const day = (iso: string) => formatDate(iso, { weekday: "short", day: "numeric", month: "short" });
 
@@ -17,7 +17,7 @@ export function CheckInHistory({ blocks, viewerRole }: { blocks: V3BlockView[]; 
     return (
       <Card>
         <EmptyState icon={NotebookPen} title="No check-ins yet">
-          Once a week, rate each category: trending up, staying the same, or trending down.
+          Once a week, rate each focus area: trending up, staying the same, or trending down.
         </EmptyState>
       </Card>
     );
@@ -52,14 +52,19 @@ export function CheckInHistory({ blocks, viewerRole }: { blocks: V3BlockView[]; 
                             <li key={cat.id} className="flex flex-col gap-1.5 px-3 py-2.5 sm:flex-row sm:items-start sm:gap-4">
                               <p className="text-sm font-medium sm:w-56 sm:shrink-0">{cat.name}</p>
                               <div className="min-w-0 flex-1 space-y-1">
-                                <TrendBadge trend={t?.trend ?? null} />
+                                <TrendWithLabel trend={t?.trend ?? null} />
                                 {t?.note ? <p className="text-sm text-ink-2">{t.note}</p> : null}
                               </div>
                             </li>
                           );
                         })}
                       </ul>
-                      {checkIn.notes ? <p className="whitespace-pre-line text-sm text-ink-2">{checkIn.notes}</p> : null}
+                      {checkIn.notes ? (
+                        <div>
+                          <p className="text-xs font-medium text-ink-3">Journal</p>
+                          <p className="mt-1 whitespace-pre-line text-sm text-ink-2">{checkIn.notes}</p>
+                        </div>
+                      ) : null}
                       {checkIn.coachFeedback ? (
                         <div className="rounded-xl border border-accent/30 bg-accent-soft/50 p-3">
                           <p className="flex items-center gap-1.5 text-xs font-medium text-accent">

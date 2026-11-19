@@ -6,13 +6,40 @@
  *   Mia    – coming back from an ankle injury; week 3 checked in, waiting for feedback.
  *   Tom    – nothing set up yet, to show the empty starting point.
  */
-import { inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import type { V3Trend } from "../config/v3";
 import { addDays } from "../lib/dates";
 import { db } from "./index";
 import { users, v3Blocks, v3Categories, v3CheckIns, v3CheckInTrends, v3Goals, v3GoalSteps, v3Milestones, v3Profiles, type V3ReviewPoint } from "./schema";
 
 const at = (iso: string, hour = 9) => Date.parse(`${iso}T${String(hour).padStart(2, "0")}:00:00Z`);
+
+/** Player Roadmap for the demo athletes: where they're aiming to be in about three years. */
+function demoAims(today: string) {
+  const year = Number(today.slice(0, 4)) + 3;
+  return {
+    "jordan@goe.test": { aimTeam: "A US college program (NCAA Division 1)", aimRole: "Starting point guard", aimYear: year },
+    "mia@goe.test": { aimTeam: "Australian U20 women's national team", aimRole: "Starting wing and lockdown defender", aimYear: year },
+  } as const;
+}
+
+/**
+ * Adds the roadmap aim to demo athletes who don't have one yet (demo data loaded
+ * before the Player Roadmap existed). Only touches the demo accounts, and never
+ * overwrites an aim someone has set. Returns how many were updated.
+ */
+export async function topUpDemoRoadmaps(today: string): Promise<number> {
+  let updated = 0;
+  for (const [email, aim] of Object.entries(demoAims(today))) {
+    const user = await db.query.users.findFirst({ columns: { id: true }, where: eq(users.email, email) });
+    if (!user) continue;
+    const profile = await db.query.v3Profiles.findFirst({ where: eq(v3Profiles.athleteId, user.id) });
+    if (!profile || profile.aimTeam || profile.aimRole) continue;
+    await db.update(v3Profiles).set(aim).where(eq(v3Profiles.athleteId, user.id));
+    updated++;
+  }
+  return updated;
+}
 
 /** Deletes every plan row. */
 export async function wipePlans() {
@@ -102,6 +129,7 @@ export async function seedDemoPlans(today: string): Promise<boolean> {
       secondaryArchetype: "floor_general",
       contexts: ["pre_season", "trials_lead_up"],
       contextNote: "NBL1 East pre-season is underway. State U20 trials are the first big date on the road map.",
+      ...demoAims(today)["jordan@goe.test"],
       updatedAt: at(daysAgo(17)),
       updatedBy: jordan,
     });
@@ -242,6 +270,7 @@ export async function seedDemoPlans(today: string): Promise<boolean> {
       secondaryArchetype: "two_way_wing",
       contexts: ["injury_return", "pre_season"],
       contextNote: "Rolled my left ankle five weeks ago. Cleared for full contact – building back trust in it.",
+      ...demoAims(today)["mia@goe.test"],
       updatedAt: at(daysAgo(21)),
       updatedBy: mia,
     });

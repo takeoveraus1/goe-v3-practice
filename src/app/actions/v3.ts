@@ -142,12 +142,12 @@ export async function saveV3Block(_prev: FormState, formData: FormData): Promise
   // Categories: open-ended, 1–4.
   const categoryRows = indexedRows(formData, "category", ["id", "name", "detail"] as const);
   for (const row of categoryRows) {
-    if (!row.values.name) fieldErrors[`category.${row.index}.name`] = "Name this category, or clear the row.";
+    if (!row.values.name) fieldErrors[`category.${row.index}.name`] = "Name this focus area, or clear the row.";
     else if (row.values.name.length > 80) fieldErrors[`category.${row.index}.name`] = "Keep it under 80 characters.";
     if (row.values.detail.length > 500) fieldErrors[`category.${row.index}.detail`] = "Keep it under 500 characters.";
   }
-  if (categoryRows.length === 0) fieldErrors.categories = "Add at least one category to work on.";
-  if (categoryRows.length > V3_MAX_CATEGORIES) fieldErrors.categories = `Up to ${V3_MAX_CATEGORIES} categories per block.`;
+  if (categoryRows.length === 0) fieldErrors.categories = "Add at least one focus area to work on.";
+  if (categoryRows.length > V3_MAX_CATEGORIES) fieldErrors.categories = `Up to ${V3_MAX_CATEGORIES} focus areas per block.`;
 
   // Review points: dated, inside the block.
   const reviewRows = indexedRows(formData, "review", ["date", "label"] as const);
@@ -263,7 +263,7 @@ export async function saveV3Goals(_prev: FormState, formData: FormData): Promise
     const title = str(formData, `${key}.title`);
     const detail = str(formData, `${key}.detail`);
     const targetDate = str(formData, `${key}.targetDate`);
-    const steps = indexedRows(formData, `${key}.step`, ["id", "text", "done"] as const);
+    const steps = indexedRows(formData, `${key}.step`, ["id", "text"] as const);
     if (title.length > 120) fieldErrors[`${key}.title`] = "Keep the goal under 120 characters.";
     if (detail.length > 1000) fieldErrors[`${key}.detail`] = "Keep this under 1000 characters.";
     if (targetDate && !isIsoDate(targetDate)) fieldErrors[`${key}.targetDate`] = "Choose a valid date.";
@@ -307,9 +307,9 @@ export async function saveV3Goals(_prev: FormState, formData: FormData): Promise
       if (goal.steps.length) {
         await tx.insert(v3GoalSteps).values(
           goal.steps.map((s, position) => {
+            // Ticks are tracked on the dashboard; editing the list keeps each step's tick.
             const before = existing?.steps.find((p) => p.id === s.values.id);
-            const done = s.values.done === "on";
-            return { goalId: goalId!, position, text: s.values.text, doneAt: done ? (before?.doneAt ?? now) : null };
+            return { goalId: goalId!, position, text: s.values.text, doneAt: before?.doneAt ?? null };
           }),
         );
       }
@@ -341,6 +341,19 @@ export async function saveV3Roadmap(_prev: FormState, formData: FormData): Promi
 
   const rows = indexedRows(formData, "milestone", ["date", "title", "detail"] as const);
   const fieldErrors: Record<string, string> = {};
+
+  // Where they're aiming to be in ~3 years: which team, what role, by when.
+  const aimTeam = str(formData, "aimTeam");
+  const aimRole = str(formData, "aimRole");
+  const aimYearText = str(formData, "aimYear");
+  const thisYear = Number((await today()).slice(0, 4));
+  const aimYear = aimYearText ? Number(aimYearText) : null;
+  if (aimTeam.length > 100) fieldErrors.aimTeam = "Keep the team under 100 characters.";
+  if (aimRole.length > 100) fieldErrors.aimRole = "Keep the role under 100 characters.";
+  if (aimYear !== null && (!Number.isInteger(aimYear) || aimYear < thisYear || aimYear > thisYear + 10)) {
+    fieldErrors.aimYear = `Pick a year between ${thisYear} and ${thisYear + 10}.`;
+  }
+
   if (rows.length > V3_MAX_MILESTONES) fieldErrors.milestones = `Up to ${V3_MAX_MILESTONES} milestones.`;
   for (const row of rows) {
     const key = `milestone.${row.index}`;
@@ -351,7 +364,9 @@ export async function saveV3Roadmap(_prev: FormState, formData: FormData): Promi
   }
   if (Object.keys(fieldErrors).length) return fieldErrorState(fieldErrors);
 
+  const aim = { aimTeam: aimTeam || null, aimRole: aimRole || null, aimYear: aimTeam || aimRole ? aimYear : null, updatedAt: Date.now(), updatedBy: user.id };
   await db.transaction(async (tx) => {
+    await tx.insert(v3Profiles).values({ athleteId, ...aim }).onConflictDoUpdate({ target: v3Profiles.athleteId, set: aim });
     await tx.delete(v3Milestones).where(eq(v3Milestones.athleteId, athleteId));
     if (rows.length) {
       await tx.insert(v3Milestones).values(
@@ -392,7 +407,7 @@ export async function saveV3CheckIn(_prev: FormState, formData: FormData): Promi
     if (!TREND_KEYS.has(trend)) fieldErrors[`trend.${cat.id}`] = "Trending up, staying the same, or trending down?";
     return { categoryId: cat.id, trend: trend as V3Trend, note: str(formData, `note.${cat.id}`).slice(0, 1000) || null };
   });
-  if (Object.keys(fieldErrors).length) return fieldErrorState(fieldErrors, "Give every category a trend for the week.");
+  if (Object.keys(fieldErrors).length) return fieldErrorState(fieldErrors, "Rate every focus area for the week.");
 
   await db.transaction(async (tx) => {
     const existing = await tx.query.v3CheckIns.findFirst({

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PlanBody } from "@/components/v3/pages";
 import { requireCoachOfAthlete } from "@/lib/auth/dal";
 
-export const metadata: Metadata = { title: "Athlete plan" };
+export const metadata: Metadata = { title: "Athlete dashboard" };
 
 export default async function Page({ params, searchParams }: PageProps<"/coach/athletes/[athleteId]">) {
   const { athleteId } = await params;

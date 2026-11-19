@@ -1,11 +1,11 @@
 import { CircleCheck } from "lucide-react";
 
 const MESSAGES: Record<string, string> = {
-  profile: "Archetype and context saved.",
+  profile: "Identity & Archetype saved.",
   block: "Training block saved.",
   "block-deleted": "Training block deleted.",
-  goals: "Goals and action steps saved.",
-  roadmap: "Road map saved.",
+  goals: "Action Steps saved.",
+  roadmap: "Player Roadmap saved.",
   coach: "You're now linked with your coach. They can see your plan and leave feedback on your check-ins.",
 };
 

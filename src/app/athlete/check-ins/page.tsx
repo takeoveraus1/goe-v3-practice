@@ -11,7 +11,7 @@ export default async function V3AthleteCheckIns({ searchParams }: PageProps<"/at
   const { saved } = await searchParams;
   return (
     <>
-      <PageHeader eyebrow={V3_VERSION_LABEL} title="Weekly check-ins" description="Each week: trending up, staying the same, or trending down – for every category in the block." />
+      <PageHeader eyebrow={V3_VERSION_LABEL} title="Weekly check-ins" description="Each week: trending up, staying the same, or trending down – for every focus area in the block." />
       <CheckInsBody athleteId={user.id} base="/athlete" viewerRole="athlete" saved={saved} />
     </>
   );

@@ -11,6 +11,7 @@ import { todayIn } from "../lib/dates";
 import { databaseConfig } from "./config";
 import { db } from "./index";
 import { isDatabaseEmpty, seedDemoData } from "./demo-data";
+import { topUpDemoRoadmaps } from "./demo-plans";
 
 async function main() {
   const config = databaseConfig();
@@ -36,6 +37,9 @@ async function main() {
       console.log(`✓ Demo data loaded (today = ${today}).`);
     } else {
       console.log("Database already has accounts – leaving the data as it is.");
+      // Demo athletes loaded before the Player Roadmap existed get its demo aim (never overwrites).
+      const updated = await topUpDemoRoadmaps(todayIn(process.env.APP_TIMEZONE || DEFAULT_TIMEZONE));
+      if (updated) console.log(`✓ Added the Player Roadmap aim to ${updated} demo athlete(s).`);
     }
   }
 }

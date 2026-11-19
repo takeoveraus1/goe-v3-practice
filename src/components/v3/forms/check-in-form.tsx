@@ -54,7 +54,7 @@ export function V3CheckInForm({
       <input type="hidden" name="blockId" value={blockId} />
       <Section
         title={current ? `Update your week ${week} check-in` : `Week ${week} check-in`}
-        description={`${blockName}. How has each category trended this week?`}
+        description={`${blockName}. Rate each focus area against last week.`}
         action={
           <Field label="Week" htmlFor="week" error={e.week} className="w-full shrink-0 sm:w-64">
             <Select id="week" name="week" value={week} onChange={(ev) => setWeek(Number(ev.target.value))}>
@@ -100,14 +100,15 @@ export function V3CheckInForm({
                   </div>
                   <FieldError id={`${cat.id}-error`}>{e[name]}</FieldError>
                 </fieldset>
-                <Field label="What happened? (optional)" htmlFor={`note.${cat.id}`} className="mt-3">
-                  <Textarea id={`note.${cat.id}`} name={`note.${cat.id}`} rows={2} defaultValue={saved?.note ?? ""} placeholder="What did you do or notice this week?" />
-                </Field>
               </div>
             );
           })}
-          <Field label="Anything else this week?" htmlFor="notes">
-            <Textarea id="notes" name="notes" rows={3} defaultValue={current?.notes ?? ""} placeholder="How the body feels, games, wins, what got in the way…" />
+          <Field
+            label="Journal"
+            htmlFor="notes"
+            hint="Optional. Write about any of your focus areas – what went well, what didn't, what you noticed, what you'll try next."
+          >
+            <Textarea id="notes" name="notes" rows={5} defaultValue={current?.notes ?? ""} placeholder="How did this week go?" />
           </Field>
         </div>
       </Section>

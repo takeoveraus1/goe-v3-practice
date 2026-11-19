@@ -180,14 +180,14 @@ export function V3BlockForm({
       </Section>
 
       <Section
-        title={`What you're working on (up to ${V3_MAX_CATEGORIES})`}
+        title={`Focus areas (up to ${V3_MAX_CATEGORIES})`}
         description={
           carriedFrom ? (
             <>
               Carried over from <span className="text-ink-2">{carriedFrom}</span> – keep, change or replace them. Anything goes; there&apos;s no fixed list.
             </>
           ) : (
-            "Open-ended – name them however makes sense to you. Each one gets a trend in the weekly check-in."
+            "Open-ended – name them however makes sense to you. Each one gets rated in the weekly check-in."
           )
         }
       >
@@ -200,7 +200,7 @@ export function V3BlockForm({
                 <div>
                   <Input
                     name={`category.${i}.name`}
-                    aria-label={`Category ${i + 1}`}
+                    aria-label={`Focus area ${i + 1}`}
                     placeholder={["e.g. Ball security under pressure", "e.g. Communication – calling screens", "e.g. Conditioning", "e.g. Confidence shooting off the catch"][i]}
                     value={c.name}
                     maxLength={80}
@@ -211,7 +211,7 @@ export function V3BlockForm({
                 <div>
                   <Textarea
                     name={`category.${i}.detail`}
-                    aria-label={`Category ${i + 1} details`}
+                    aria-label={`Focus area ${i + 1} details`}
                     rows={2}
                     placeholder="What it looks like when it's going well, cues, how you'll measure it (optional)"
                     value={c.detail}
@@ -221,7 +221,7 @@ export function V3BlockForm({
                 </div>
               </div>
               <RowControls
-                label={`category ${i + 1}`}
+                label={`focus area ${i + 1}`}
                 onUp={i > 0 ? () => setCategories((rows) => move(rows, i, i - 1)) : null}
                 onDown={i < categories.length - 1 ? () => setCategories((rows) => move(rows, i, i + 1)) : null}
                 onRemove={() => setCategories((rows) => rows.filter((_, j) => j !== i))}
@@ -233,9 +233,9 @@ export function V3BlockForm({
             disabled={categories.length >= V3_MAX_CATEGORIES}
             onClick={() => setCategories((rows) => [...rows, { key: rowKey(), id: null, name: "", detail: "" }])}
           >
-            {categories.length >= V3_MAX_CATEGORIES ? `${V3_MAX_CATEGORIES} is the max` : "Add category"}
+            {categories.length >= V3_MAX_CATEGORIES ? `${V3_MAX_CATEGORIES} is the max` : "Add focus area"}
           </AddRowButton>
-          {!isNew ? <p className="text-xs text-ink-3">Removing a category also removes its weekly trends from this block&apos;s check-ins.</p> : null}
+          {!isNew ? <p className="text-xs text-ink-3">Removing a focus area also removes its weekly ratings from this block&apos;s check-ins.</p> : null}
         </div>
       </Section>
 

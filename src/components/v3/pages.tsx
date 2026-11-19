@@ -38,12 +38,12 @@ async function loadPlan(athleteId: string) {
   return { plan, today };
 }
 
-function EditHeader({ base, title, description, action }: { base: string; title: string; description?: ReactNode; action?: ReactNode }) {
+function EditHeader({ base, title, description, action, backLabel = "Back to the dashboard" }: { base: string; title: string; description?: ReactNode; action?: ReactNode; backLabel?: string }) {
   return (
     <div className="mb-6">
       <Link href={base} className="inline-flex items-center gap-1 text-sm text-ink-3 hover:text-ink">
         <ChevronLeft className="size-4" aria-hidden />
-        Back to the plan
+        {backLabel}
       </Link>
       <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
         <div>
@@ -71,7 +71,7 @@ export async function ProfileEditBody({ athleteId, base }: BodyProps) {
   const { plan } = await loadPlan(athleteId);
   return (
     <>
-      <EditHeader base={base} title="Archetype & context" description="Labels only – there are no weights, categories or scores underneath an archetype in this version." />
+      <EditHeader base={base} title="Identity & Archetype" description="An archetype is just a label here – there's no scoring behind it. Add where things are at right now." />
       <V3ProfileForm
         athleteId={athleteId}
         cancelHref={base}
@@ -100,18 +100,24 @@ export async function GoalsEditBody({ athleteId, base }: BodyProps) {
   }
   return (
     <>
-      <EditHeader base={base} title="Goals & action steps" description="Two goals at most: the most pressing one and the longer-term one. Break each into steps, in order." />
+      <EditHeader base={base} title="Action Steps" description="The most pressing goal (and a longer-term one if you like), broken into steps, in order. Tick steps off on the dashboard." />
       <V3GoalsForm athleteId={athleteId} cancelHref={base} defaults={defaults} />
     </>
   );
 }
 
 export async function RoadmapEditBody({ athleteId, base }: BodyProps) {
-  const { plan } = await loadPlan(athleteId);
+  const { plan, today } = await loadPlan(athleteId);
   return (
     <>
-      <EditHeader base={base} title="Road map" description="The anticipated road ahead. Add the dates that matter; blocks, review points and goal dates are filled in for you." />
-      <V3RoadmapForm athleteId={athleteId} cancelHref={base} defaults={plan.milestones.map((m) => ({ date: m.date, title: m.title, detail: m.detail }))} />
+      <EditHeader base={base} title="Player Roadmap" description="Where you're aiming to be in about three years – which team, and what role in that team – and the milestones on the way." />
+      <V3RoadmapForm
+        athleteId={athleteId}
+        cancelHref={base}
+        thisYear={Number(today.slice(0, 4))}
+        aim={{ team: plan.profile?.aimTeam ?? null, role: plan.profile?.aimRole ?? null, year: plan.profile?.aimYear ?? null }}
+        defaults={plan.milestones.map((m) => ({ date: m.date, title: m.title, detail: m.detail }))}
+      />
     </>
   );
 }
@@ -154,7 +160,7 @@ export async function BlockEditBody({ athleteId, base, blockId }: BodyProps & { 
   };
   return (
     <>
-      <EditHeader base={base} title="New training block" description="When it starts, when it finishes, when it gets reviewed, and up to four things to work on." />
+      <EditHeader base={base} title="New training block" description="When it starts, when it finishes, when it gets reviewed, and up to four focus areas." />
       <V3BlockForm athleteId={athleteId} defaults={defaults} cancelHref={base} carriedFrom={last?.name ?? null} />
     </>
   );
@@ -198,7 +204,7 @@ export async function NewCheckInBody({ athleteId, requestedWeek }: { athleteId: 
   if (!block) {
     return (
       <>
-        <EditHeader base="/athlete/check-ins" title="Weekly check-in" />
+        <EditHeader base="/athlete/check-ins" backLabel="Back to check-ins" title="Weekly check-in" />
         <Card>
           <EmptyState icon={NotebookPen} title="No training block running" action={<ButtonLink href="/athlete/blocks/new">Set up a block</ButtonLink>}>
             {plan.nextBlock
@@ -223,7 +229,7 @@ export async function NewCheckInBody({ athleteId, requestedWeek }: { athleteId: 
 
   return (
     <>
-      <EditHeader base="/athlete/check-ins" title="Weekly check-in" description="Once a week: is each thing you're working on trending up, staying the same, or trending down?" />
+      <EditHeader base="/athlete/check-ins" backLabel="Back to check-ins" title="Weekly check-in" description="Once a week: is each focus area trending up, staying the same, or trending down?" />
       <V3CheckInForm
         blockId={block.id}
         blockName={block.name}

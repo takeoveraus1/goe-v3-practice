@@ -62,6 +62,11 @@ export const v3Profiles = sqliteTable("v3_profiles", {
   /** Context keys from V3_CONTEXTS – off-season, lead-up to trials, coming back from injury… */
   contexts: text("contexts", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),
   contextNote: text("context_note"),
+  /** Player Roadmap: where the athlete is aiming to be in ~3 years – which team, and what role in it. */
+  aimTeam: text("aim_team"),
+  aimRole: text("aim_role"),
+  /** The year they're aiming for (about three years out). */
+  aimYear: integer("aim_year"),
   updatedAt: integer("updated_at", { mode: "number" }),
   updatedBy: text("updated_by").references(() => users.id, { onDelete: "set null" }),
 });

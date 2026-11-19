@@ -9,7 +9,7 @@ export function V3CoachTabs({ athleteId, unread }: { athleteId: string; unread: 
   const base = `/coach/athletes/${athleteId}`;
   const onCheckIns = pathname.startsWith(`${base}/check-ins`);
   const tabs = [
-    { href: base, label: "Plan", active: !onCheckIns, dot: false },
+    { href: base, label: "Dashboard", active: !onCheckIns, dot: false },
     { href: `${base}/check-ins`, label: "Check-ins", active: onCheckIns, dot: unread > 0 },
   ];
   return (

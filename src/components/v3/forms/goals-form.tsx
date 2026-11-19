@@ -4,7 +4,6 @@ import { useState } from "react";
 import { saveV3Goals } from "@/app/actions/v3";
 import { Field, FieldError, Input, Textarea } from "@/components/ui/field";
 import { V3_GOAL_HORIZONS, V3_MAX_STEPS, type V3GoalHorizon } from "@/config/v3";
-import { cn } from "@/lib/cn";
 import { useFormAction } from "@/lib/use-form-action";
 import { AddRowButton, FormFooter, move, rowKey, RowControls, Section } from "./form-bits";
 
@@ -52,22 +51,12 @@ function GoalSection({ horizon, defaults, errors }: { horizon: (typeof V3_GOAL_H
 
       <div className="mt-5">
         <p className="text-sm font-medium text-ink-2">Action steps, in order</p>
-        <p className="mt-0.5 text-xs text-ink-3">Step by step – what has to happen, first to last. Tick off anything already done.</p>
+        <p className="mt-0.5 text-xs text-ink-3">Step by step – what has to happen, first to last. Steps are ticked off on the dashboard, and keep their ticks when you edit them here.</p>
         <ol className="mt-3 space-y-2">
           {steps.map((s, i) => (
             <li key={s.key} className="flex items-start gap-2">
               {s.id ? <input type="hidden" name={`${h}.step.${i}.id`} value={s.id} /> : null}
               <span className="mt-2.5 w-5 shrink-0 text-right text-xs font-medium text-ink-3 tabular">{i + 1}.</span>
-              <label className="mt-2.5 shrink-0" title="Done">
-                <input
-                  type="checkbox"
-                  name={`${h}.step.${i}.done`}
-                  checked={s.done}
-                  onChange={(ev) => update(i, { done: ev.target.checked })}
-                  className="size-4 accent-[var(--color-good)]"
-                  aria-label={`Step ${i + 1} done`}
-                />
-              </label>
               <div className="flex-1">
                 <Input
                   name={`${h}.step.${i}.text`}
@@ -75,11 +64,11 @@ function GoalSection({ horizon, defaults, errors }: { horizon: (typeof V3_GOAL_H
                   value={s.text}
                   maxLength={200}
                   onChange={(ev) => update(i, { text: ev.target.value })}
-                  className={cn(s.done && "text-ink-3 line-through")}
                   placeholder={i === 0 ? "First step" : "Next step"}
                 />
                 <FieldError>{errors[`${h}.step.${i}.text`]}</FieldError>
               </div>
+              {s.done ? <span className="mt-2.5 shrink-0 rounded-full bg-good-soft px-2 py-0.5 text-xs font-medium text-good">Done</span> : null}
               <RowControls
                 label={`step ${i + 1}`}
                 onUp={i > 0 ? () => setSteps((rows) => move(rows, i, i - 1)) : null}

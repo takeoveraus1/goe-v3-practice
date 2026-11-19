@@ -6,7 +6,7 @@ import { requireAthlete } from "@/lib/auth/dal";
 const NAV: NavItem[] = [
   {
     href: "/athlete",
-    label: "My plan",
+    label: "Dashboard",
     icon: <ClipboardList aria-hidden />,
     exact: true,
     alsoMatches: ["/athlete/profile", "/athlete/goals", "/athlete/roadmap", "/athlete/blocks"],
